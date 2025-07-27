@@ -2,6 +2,7 @@ import React from "react";
 import "./App.css";
 import Navbars from "./Components/Navbars";
 import Customers from "./Components/Customers/Customers";
+import NotFound from "./pages/NotFound";
 import { Routes, Route } from "react-router-dom";
 import "./index.css";
 function App() {
@@ -25,6 +26,8 @@ function App() {
           </>
         }
       />
+      <Route path="*" element={<NotFound />} />
+      {/* Add more routes as needed */}
     </Routes>
   );
 }
