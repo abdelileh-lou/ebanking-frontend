@@ -4,6 +4,7 @@ import NavbarSearch from "./search/NavbarSearch";
 
 export default function Navbars() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showMenu, setShowMenu] = useState(false); // 👈 pour gérer l'affichage du menu
 
   return (
     <>
@@ -11,8 +12,11 @@ export default function Navbars() {
         <div className="w-full m-0 p-0 px-4">
           <div className="flex items-center justify-between h-16 w-full m-0 p-0">
             {/* Left: Menu Icon and Brand */}
-            <div className="flex items-center space-x-4">
-              <button className="p-2 rounded hover:bg-blue-700 focus:outline-none">
+            <div className="relative flex items-center space-x-4">
+              <button
+                className="p-2 rounded hover:bg-blue-700 focus:outline-none"
+                onClick={() => setShowMenu(!showMenu)} // 👈 Toggle menu
+              >
                 <svg
                   className="h-6 w-6"
                   fill="none"
@@ -27,8 +31,22 @@ export default function Navbars() {
                   />
                 </svg>
               </button>
+
+              {/* Menu Dropdown */}
+              {showMenu && (
+                <ul className="absolute top-12 left-0 bg-white text-black shadow-lg rounded-md z-50 w-40">
+                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                    <Link to="/customers/newCustomer">New Customer</Link>
+                  </li>
+                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                    <Link to="/customers">View Customers</Link>
+                  </li>
+                </ul>
+              )}
+
               <span className="font-bold text-lg">E-Banking</span>
             </div>
+
             {/* Center: Search */}
             <div className="flex-1 flex justify-center relative">
               <div className="relative w-full max-w-xs">
@@ -54,7 +72,8 @@ export default function Navbars() {
                 />
               </div>
             </div>
-            {/*Links */}
+
+            {/* Links */}
             <div className="flex items-center space-x-4">
               <Link to="/" className="hover:text-blue-200">
                 Home
@@ -69,6 +88,7 @@ export default function Navbars() {
           </div>
         </div>
       </nav>
+
       <NavbarSearch query={searchQuery} />
     </>
   );
