@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSnackbar } from "notistack";
+import { Trash } from "lucide-react"; // delete icon
 
 export default function Customers() {
   const [customers, setCustomers] = useState([]);
@@ -22,66 +23,89 @@ export default function Customers() {
       }
     };
     fetchCustomers();
-  }, []); // <-- use an empty array here
+  }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8080/customers/${id}`);
+      setCustomers(customers.filter((customer) => customer.id !== id));
+      enqueueSnackbar("Customer deleted successfully!", { variant: "success" });
+    } catch (error) {
+      enqueueSnackbar("Failed to delete customer: " + error.message, {
+        variant: "error",
+      });
+    }
+  };
 
   return (
-    <div className="w-screen min-h-screen bg-gray-100 p-0 m-0 flex items-center justify-center">
+    <div className="w-screen min-h-screen overflow-x-hidden bg-gradient-to-br from-gray-100 to-blue-50 py-10 px-4">
       {loading ? (
-        <div className="flex flex-col items-center justify-center w-full h-screen">
+        <div className="flex flex-col items-center justify-center h-screen">
           <span className="text-blue-500 text-2xl font-bold mb-2">
             Loading...
           </span>
           <div className="w-16 h-16 border-4 border-blue-300 border-t-blue-500 rounded-full animate-spin"></div>
         </div>
       ) : customers.length === 0 ? (
-        <div className="flex flex-col items-center justify-center w-full h-96">
+        <div className="flex flex-col items-center justify-center h-96">
           <span className="text-red-500 text-xl font-semibold mb-2">
             No customers found.
           </span>
         </div>
       ) : (
-        <div className="w-full">
-          <h1 className="text-2xl font-bold mb-4 text-center w-full">
-            Customers
-          </h1>
-          <div className="w-full flex justify-center">
-            <table className="w-full max-w-5xl bg-white border border-gray-300 rounded-lg shadow overflow-hidden">
-              <thead>
-                <tr className="bg-blue-100">
-                  <th className="py-3 px-4 border-b border-gray-300 text-center">
-                    ID
-                  </th>
-                  <th className="py-3 px-4 border-b border-gray-300 text-center">
-                    Name
-                  </th>
-                  <th className="py-3 px-4 border-b border-gray-300 text-center">
-                    Email
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {customers.map((customer, idx) => (
-                  <tr
-                    key={customer.id}
-                    className={
-                      idx % 2 === 0
-                        ? "bg-gray-50 hover:bg-blue-50"
-                        : "bg-white hover:bg-blue-50"
-                    }
-                  >
-                    <td className="py-2 px-4 border-b border-gray-200 rounded-l-lg">
-                      {customer.id}
-                    </td>
-                    <td className="py-2 px-4 border-b border-gray-200">
-                      {customer.name}
-                    </td>
-                    <td className="py-2 px-4 border-b border-gray-200 rounded-r-lg">
-                      {customer.email}
-                    </td>
+        <div className="flex justify-center mt-10">
+          <div className="w-full max-w-6xl bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
+            <h1 className="text-3xl font-bold text-center text-blue-800 mb-6">
+              Customer List
+            </h1>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-blue-100 text-blue-800">
+                  <tr>
+                    <th className="px-6 py-3 text-sm font-semibold text-center uppercase tracking-wider">
+                      ID
+                    </th>
+                    <th className="px-6 py-3 text-sm font-semibold text-center uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 text-sm font-semibold text-center uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th className="px-6 py-3 text-sm font-semibold text-center uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-100">
+                  {customers.map((customer) => (
+                    <tr
+                      key={customer.id}
+                      className="hover:bg-blue-50 transition duration-150"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap text-center text-gray-700 font-medium">
+                        {customer.id}
+                      </td>
+                      <td className="px-6 py-4 text-center text-gray-800">
+                        {customer.name}
+                      </td>
+                      <td className="px-6 py-4 text-center text-gray-800">
+                        {customer.email}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <button
+                          onClick={() => handleDelete(customer.id)}
+                          className="text-red-600 hover:text-red-800 transition duration-200"
+                          title="Delete"
+                        >
+                          <Trash className="w-5 h-5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

@@ -1,10 +1,19 @@
 @import "tailwindcss";
 
-body, #root {
+body,
+#root {
   margin: 0;
   padding: 0;
   position: relative;
   top: 0;
   width: 100vw;
   min-height: 100vh;
+}
+
+@layer base {
+  html,
+  body {
+    @apply overflow-x-hidden;
+    @apply scroll-smooth;
+  }
 }
