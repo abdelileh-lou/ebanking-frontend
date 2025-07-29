@@ -4,7 +4,7 @@ import NavbarSearch from "./search/NavbarSearch";
 
 export default function Navbars() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showMenu, setShowMenu] = useState(false); // 👈 pour gérer l'affichage du menu
+  const [showMenu, setShowMenu] = useState(false);
 
   return (
     <>
@@ -15,7 +15,7 @@ export default function Navbars() {
             <div className="relative flex items-center space-x-4">
               <button
                 className="p-2 rounded hover:bg-blue-700 focus:outline-none"
-                onClick={() => setShowMenu(!showMenu)} // 👈 Toggle menu
+                onClick={() => setShowMenu(!showMenu)}
               >
                 <svg
                   className="h-6 w-6"
@@ -35,10 +35,16 @@ export default function Navbars() {
               {/* Menu Dropdown */}
               {showMenu && (
                 <ul className="absolute top-12 left-0 bg-white text-black shadow-lg rounded-md z-50 w-40">
-                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                  <li
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => setShowMenu(false)}
+                  >
                     <Link to="/customers/newCustomer">New Customer</Link>
                   </li>
-                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                  <li
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => setShowMenu(false)}
+                  >
                     <Link to="/customers">View Customers</Link>
                   </li>
                 </ul>
@@ -73,7 +79,7 @@ export default function Navbars() {
               </div>
             </div>
 
-            {/* Links */}
+            {/* Right: Navigation Links */}
             <div className="flex items-center space-x-4">
               <Link to="/" className="hover:text-blue-200">
                 Home
@@ -89,6 +95,7 @@ export default function Navbars() {
         </div>
       </nav>
 
+      {/* Search Result Dropdown or Section */}
       <NavbarSearch query={searchQuery} />
     </>
   );
