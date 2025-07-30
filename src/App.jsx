@@ -5,6 +5,8 @@ import Customers from "./Components/Customers/Customers";
 import NewCustomer from "./Components/Customers/NewCustomer";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
+import Footer from "./Components/Footer";
+import Accounts from "./Components/Accounts/Accounts";
 import { Routes, Route } from "react-router-dom";
 import "./index.css";
 function App() {
@@ -16,6 +18,7 @@ function App() {
           <>
             <Navbars />
             <Home />
+            <Footer />
           </>
         }
       />
@@ -29,6 +32,15 @@ function App() {
         }
       />
       <Route path="*" element={<NotFound />} />
+      <Route
+        path="/accounts"
+        element={
+          <>
+            <Navbars />
+            <Accounts />
+          </>
+        }
+      />
       <Route
         path="/customers/newCustomer"
         element={
