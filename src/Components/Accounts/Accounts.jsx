@@ -13,10 +13,8 @@ import {
 const Accounts = () => {
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
-  const [operations, setOperations] = useState([]);
   const [accountHistory, setAccountHistory] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
   const [accountIdSearch, setAccountIdSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [operationsLoading, setOperationsLoading] = useState(false);
@@ -24,12 +22,9 @@ const Accounts = () => {
   const [error, setError] = useState(null);
   const [searchError, setSearchError] = useState(null);
 
-  const pageSize = 4;
+  // const pageSize = 4;
+  const BASE_URL = "http://localhost:8080";
 
-  // API base URL - adjust this to match your backend
-  const BASE_URL = "http://localhost:8080"; // Change this to your actual API URL
-
-  // Fetch all accounts
   useEffect(() => {
     fetchAccounts();
   }, []);
@@ -72,33 +67,74 @@ const Accounts = () => {
     }
   };
 
-  const fetchAccountOperations = async (accountId) => {
-    try {
-      setOperationsLoading(true);
-      const response = await fetch(
-        `${BASE_URL}/accounts/${accountId}/operations`
-      );
-      if (!response.ok) throw new Error("Failed to fetch operations");
-      const data = await response.json();
-      setOperations(data);
-    } catch (err) {
-      setError("Failed to load operations: " + err.message);
-    } finally {
-      setOperationsLoading(false);
-    }
-  };
+  // const fetchAccountHistoryPage = async (accountId, page = 0, size = 4) => {
+  //   if (!accountId) {
+  //     console.warn("No accountId provided");
+  //     setError("Missing account ID.");
+  //     return;
+  //   }
 
-  const fetchAccountHistoryPage = async (accountId, page = 0) => {
+  //   try {
+  //     setOperationsLoading(true);
+  //     const url = `${BASE_URL}/accounts/${accountId}/pageOperations?page=${page}&size=${size}`;
+  //     console.log("Fetching from:", url);
+  //     const response = await fetch(url);
+  //     if (!response.ok) throw new Error("Failed to fetch account history");
+  //     const data = await response.json();
+  //     setAccountHistory(data);
+  //     setCurrentPage(page);
+  //   } catch (err) {
+  //     console.error(err);
+  //     setError("Failed to load account history: " + err.message);
+  //   } finally {
+  //     setOperationsLoading(false);
+  //   }
+  // };
+
+  // const handleAccountSelect = (account) => {
+  //   setSelectedAccount(account);
+  //   setCurrentPage(0);
+  //   setSearchError(null);
+  //   setAccountIdSearch(account.accountId);
+  //   fetchAccountHistoryPage(account.accountId, 0);
+  // };
+
+  // const handleAccountSearch = async (e) => {
+  //   e.preventDefault();
+  //   if (!accountIdSearch.trim()) {
+  //     setSearchError("Please enter an account ID");
+  //     return;
+  //   }
+  //   await fetchAccountById(accountIdSearch.trim());
+  // };
+
+  // const handlePageChange = (newPage) => {
+  //   console.log("Selected Account:", selectedAccount);
+  //   if (selectedAccount && selectedAccount.accountId) {
+  //     fetchAccountHistoryPage(selectedAccount.accountId, newPage);
+  //   } else {
+  //     console.warn("No account ID found on selectedAccount.");
+  //   }
+  //};
+
+  const fetchAccountHistoryPage = async (accountId, page = 0, size = 4) => {
+    if (!accountId) {
+      console.warn("No accountId provided");
+      setError("Missing account ID.");
+      return;
+    }
+
     try {
       setOperationsLoading(true);
-      const response = await fetch(
-        `${BASE_URL}/accounts/${accountId}/pageOperations?page=${page}&size=${pageSize}`
-      );
+      const url = `${BASE_URL}/accounts/${accountId}/pageOperations?page=${page}&size=${size}`;
+      console.log("Fetching from:", url);
+      const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch account history");
       const data = await response.json();
       setAccountHistory(data);
       setCurrentPage(page);
     } catch (err) {
+      console.error("Fetch error:", err);
       setError("Failed to load account history: " + err.message);
     } finally {
       setOperationsLoading(false);
@@ -106,11 +142,19 @@ const Accounts = () => {
   };
 
   const handleAccountSelect = (account) => {
-    setSelectedAccount(account);
+    // Normalize id → accountId
+    const normalizedAccount = {
+      ...account,
+      accountId: account.accountId || account.id,
+    };
+
+    console.log("Selected account:", normalizedAccount);
+
+    setSelectedAccount(normalizedAccount);
     setCurrentPage(0);
     setSearchError(null);
-    setAccountIdSearch(account.accountId);
-    fetchAccountHistoryPage(account.accountId, 0);
+    setAccountIdSearch(normalizedAccount.accountId);
+    fetchAccountHistoryPage(normalizedAccount.accountId, 0);
   };
 
   const handleAccountSearch = async (e) => {
@@ -119,12 +163,26 @@ const Accounts = () => {
       setSearchError("Please enter an account ID");
       return;
     }
-    await fetchAccountById(accountIdSearch.trim());
+
+    // Simulate fetchAccountById()
+    try {
+      const response = await fetch(
+        `${BASE_URL}/accounts/${accountIdSearch.trim()}`
+      );
+      if (!response.ok) throw new Error("Account not found");
+      const account = await response.json();
+      handleAccountSelect(account);
+    } catch (err) {
+      setSearchError("Error fetching account: " + err.message);
+    }
   };
 
   const handlePageChange = (newPage) => {
-    if (selectedAccount) {
+    console.log("Selected Account:", selectedAccount);
+    if (selectedAccount && selectedAccount.accountId) {
       fetchAccountHistoryPage(selectedAccount.accountId, newPage);
+    } else {
+      console.warn("No account ID found on selectedAccount.");
     }
   };
 
@@ -222,26 +280,6 @@ const Accounts = () => {
               <p className="text-red-700">{searchError}</p>
             </div>
           )}
-        </div>
-
-        {/* Search and Filter Bar */}
-        <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-5 w-5" />
-              <input
-                type="text"
-                placeholder="Search transactions..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
-              <Filter className="h-4 w-4" />
-              Filter
-            </button>
-          </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
@@ -391,7 +429,7 @@ const Accounts = () => {
                                 : "text-red-600"
                             }`}
                           >
-                            {operation.type === "CREDIT" ? "+" : ""}
+                            {operation.type === "CREDIT" ? "+" : "-"}
                             {formatCurrency(operation.amount)}
                           </p>
                           <p className="text-sm text-gray-500">
@@ -413,22 +451,15 @@ const Accounts = () => {
                     </p>
                     <div className="flex gap-2">
                       <button
-                        onClick={() =>
-                          handlePageChange(accountHistory.currentPage - 1)
-                        }
-                        disabled={accountHistory.currentPage === 0}
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 0}
                         className="px-4 py-2 text-sm border border-blue-200 rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Previous
                       </button>
                       <button
-                        onClick={() =>
-                          handlePageChange(accountHistory.currentPage + 1)
-                        }
-                        disabled={
-                          accountHistory.currentPage >=
-                          accountHistory.totalPage - 1
-                        }
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage >= accountHistory.totalPage - 1}
                         className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Next
