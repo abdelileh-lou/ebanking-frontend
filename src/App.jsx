@@ -9,6 +9,7 @@ import Footer from "./Components/Footer";
 import Accounts from "./Components/Accounts/Accounts";
 import { Routes, Route } from "react-router-dom";
 import "./index.css";
+import Transactions from "./pages/Transactions";
 function App() {
   return (
     <Routes>
@@ -38,6 +39,15 @@ function App() {
           <>
             <Navbars />
             <Accounts />
+          </>
+        }
+      />
+      <Route
+        path="/transactions"
+        element={
+          <>
+            <Navbars />
+            <Transactions />
           </>
         }
       />
